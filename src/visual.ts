@@ -33,33 +33,63 @@ function buildDataPoints(data: powerbi.DataViewCategorical): DataPoint[] {
 export class Visual implements IVisual {
     private settings: VisualSettings;
     private svgRoot: d3.Selection<SVGElement, {}, HTMLElement, any>;
+    private barContainer: d3.Selection<SVGElement, {}, HTMLElement, any>;
 
 
     constructor(options: VisualConstructorOptions) {
         console.log('Visual constructor', options);
+
         this.svgRoot = d3
             .select(options.element)
             .append("svg");
+
+        this.barContainer = this.svgRoot
+            .append("g")
+            .attr("fill", "royalblue");
     }
 
     public update(options: VisualUpdateOptions) {
         this.settings = Visual.parseSettings(options && options.dataViews && options.dataViews[0]);
+        let { height, width } = options.viewport;
 
         let data = options.dataViews[0].categorical;
         let datapoints = buildDataPoints(data);
+        const maxYaxisValue = Math.max(...datapoints.map(d => d.count));
+
 
         this.svgRoot
-            .selectAll("text")
+            .attr("height", height)
+            .attr("width", width);
+
+        const xScaleBand = d3
+            .scaleBand()
+            .domain(datapoints.map(d => d.category))
+            .range([0, width])
+            .padding(0.1);
+
+        const yScaleLinear = d3
+            .scaleLinear<number>()
+            .domain([0, maxYaxisValue])
+            .range([height, 0]);
+
+        this.barContainer
+            .selectAll("rect")
             .remove();
 
-        this.svgRoot
-            .selectAll("text")
-            .data(datapoints)
+
+        this.barContainer
+            .attr("fill", "royalblue")
+            .selectAll("rect")
+            .data(datapoints.sort((a, b) => d3.descending(a.count, b.count)))
             .enter()
-            .append("text")
-                .attr("x", 0)
-                .attr("y", (d,i)=>(1 + i)*20)
-                .text(d=>`${d.category} = ${d.count}`);
+                .append("rect")
+                .attr("id", (d) => d.category)
+                .attr("x", (d) => xScaleBand(d.category))
+                .attr("y", (d, i) => yScaleLinear(d.count))
+                .attr("height", (d, i) => yScaleLinear(0) - yScaleLinear(d.count))
+                .attr("width", (d, i) => xScaleBand.bandwidth())
+                  .append("title")
+                  .text(d=>d.category)
     }
 
     private static parseSettings(dataView: DataView): VisualSettings {
