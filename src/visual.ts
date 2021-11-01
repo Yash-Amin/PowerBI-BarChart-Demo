@@ -12,7 +12,21 @@ import DataView = powerbi.DataView;
 import VisualObjectInstanceEnumerationObject = powerbi.VisualObjectInstanceEnumerationObject;
 
 import { VisualSettings } from "./settings";
+import { DataPoint } from './types';
 
+
+function buildDataPoints(data: powerbi.DataViewCategorical): DataPoint[] {
+    let datapoints: DataPoint[] = [];
+
+    for (let i = 0; i < data.categories[0].values.length; i++) {
+        datapoints.push(<DataPoint>{
+            category: data.categories[0].values[i],
+            count: data.values[0].values[i]
+        })
+    }
+
+    return datapoints;
+}
 export class Visual implements IVisual {
 
     private target: HTMLElement;
@@ -25,7 +39,11 @@ export class Visual implements IVisual {
 
     public update(options: VisualUpdateOptions) {
         this.settings = Visual.parseSettings(options && options.dataViews && options.dataViews[0]);
-        console.log('Visual update', options);
+
+        let data = options.dataViews[0].categorical;
+        let datapoints = buildDataPoints(data);
+
+        console.table(datapoints)
 
         this.target.innerHTML = "<p>Hello World</p>"
     }
