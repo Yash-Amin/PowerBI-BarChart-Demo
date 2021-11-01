@@ -1,40 +1,56 @@
 {
     "dataRoles": [
-        {
-            "displayName": "Category Data",
-            "name": "category",
-            "kind": "Grouping"
-        },
-        {
-            "displayName": "Measure Data",
-            "name": "measure",
-            "kind": "Measure"
-        }
+      {
+        "displayName": "Category Data",
+        "name": "category",
+        "kind": "Grouping"
+      },
+      {
+        "displayName": "Measure Data",
+        "name": "measure",
+        "kind": "Measure"
+      }
     ],
     "objects": {
-
+      "customSettings": {
+        "displayName": "Custom Settings",
+        "properties": {
+          "barColor": {
+            "displayName": "Bar Color",
+            "description": "Bar Color",
+            "type": {
+              "fill": {
+                "solid": {
+                  "color": true
+                }
+              }
+            }
+          }
+        }
+      }
     },
     "dataViewMappings": [
-        {
-            "categorical": {
-                "categories": {
-                    "for": {
-                        "in": "category"
-                    },
-                    "dataReductionAlgorithm": {
-                        "top": {}
-                    }
-                },
-                "values": {
-                    "select": [
-                        {
-                            "bind": {
-                                "to": "measure"
-                            }
-                        }
-                    ]
-                }
+      {
+        "categorical": {
+          "categories": {
+            "for": {
+              "in": "category"
+            },
+            "dataReductionAlgorithm": {
+              "top": {}
             }
+          },
+          "values": {
+            "select": [
+              {
+                "bind": {
+                  "to": "measure"
+                }
+              }
+            ]
+          }
         }
+      }
     ]
-}
+  }
+  
