@@ -78,7 +78,7 @@ export class Visual implements IVisual {
 
 
         this.barContainer
-            .attr("fill", "royalblue")
+            .attr("fill", this.settings.customSettings.barColor)
             .selectAll("rect")
             .data(datapoints.sort((a, b) => d3.descending(a.count, b.count)))
             .enter()
