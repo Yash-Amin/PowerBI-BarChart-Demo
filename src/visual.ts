@@ -10,6 +10,7 @@ import EnumerateVisualObjectInstancesOptions = powerbi.EnumerateVisualObjectInst
 import VisualObjectInstance = powerbi.VisualObjectInstance;
 import DataView = powerbi.DataView;
 import VisualObjectInstanceEnumerationObject = powerbi.VisualObjectInstanceEnumerationObject;
+import * as d3 from "d3";
 
 import { VisualSettings } from "./settings";
 import { DataPoint } from './types';
@@ -30,12 +31,15 @@ function buildDataPoints(data: powerbi.DataViewCategorical): DataPoint[] {
 }
 
 export class Visual implements IVisual {
-    private target: HTMLElement;
     private settings: VisualSettings;
+    private svgRoot: d3.Selection<SVGElement, {}, HTMLElement, any>;
+
 
     constructor(options: VisualConstructorOptions) {
         console.log('Visual constructor', options);
-        this.target = options.element;
+        this.svgRoot = d3
+            .select(options.element)
+            .append("svg");
     }
 
     public update(options: VisualUpdateOptions) {
@@ -44,10 +48,18 @@ export class Visual implements IVisual {
         let data = options.dataViews[0].categorical;
         let datapoints = buildDataPoints(data);
 
-        console.table(datapoints);
+        this.svgRoot
+            .selectAll("text")
+            .remove();
 
-
-        this.target.innerHTML = "<p> Hello World </p>";
+        this.svgRoot
+            .selectAll("text")
+            .data(datapoints)
+            .enter()
+            .append("text")
+                .attr("x", 0)
+                .attr("y", (d,i)=>(1 + i)*20)
+                .text(d=>`${d.category} = ${d.count}`);
     }
 
     private static parseSettings(dataView: DataView): VisualSettings {
